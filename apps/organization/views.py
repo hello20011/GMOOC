@@ -66,11 +66,14 @@ class UserAskView(View):
 class OrgHomeView(View):
     def get(self, request, org_id):
         org = CourseOrg.objects.get(pk=int(org_id))
+        org.click_nums += 1
+        org.save()
         courses = org.course_set.all()[:3]
         teachers = org.teacher_set.all()[:1]
         is_faved = False
-        if UserFavourite.objects.filter(user=request.user, fav_id=int(org_id), fav_type=2):
-            is_faved = True
+        if request.user.is_authenticated:
+            if UserFavourite.objects.filter(user=request.user, fav_id=int(org_id), fav_type=2):
+                is_faved = True
         return render(request, 'org-detail-homepage.html', {
             'page_name': 'home',
             'org': org,
@@ -126,7 +129,6 @@ class OrgTeachersView(View):
         })
 
 
-
 class AddFavView(View):
     def post(self, request):
         try:
@@ -150,3 +152,52 @@ class AddFavView(View):
                     return HttpResponse(json.dumps({'status': 'success', 'msg': '收藏'}), content_type="application/json")
             else:
                 return HttpResponse(json.dumps({'status': 'fail', 'msg': '用户未登录'}), content_type="application/json")
+
+
+class TeachersListView(View):
+    def get(self, request):
+        teachers = Teacher.objects.all()
+        top_teachers = Teacher.objects.all().order_by('-click_nums')[:3]
+        sort = request.GET.get('sort', '')
+        if sort == 'hot':
+            teachers = teachers.order_by('-click_nums')
+
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+
+        p = Paginator(teachers, 5, request=request)
+        teachers = p.page(page)
+
+        teachers_num = teachers.object_list.count()
+
+        return render(request, 'teachers-list.html', {
+            'teachers': teachers,
+            'top_teachers': top_teachers,
+            'teachers_num': teachers_num,
+            'sort': sort,
+        })
+
+
+class TeachersDetailView(View):
+    def get(self, request, teacher_id):
+        teacher = Teacher.objects.get(pk=teacher_id)
+        teacher.click_nums += 1
+        teacher.save()
+        teacher_courses = teacher.get_all_courses()
+        top_teachers = Teacher.objects.all().order_by('-click_nums')[:5]
+        is_faved_teacher = False
+        is_faved_org = False
+        if request.user.is_authenticated:
+            if UserFavourite.objects.filter(fav_id=teacher_id, fav_type=3):
+                is_faved_teacher = True
+            if UserFavourite.objects.filter(fav_id=teacher.org.pk, fav_type=2):
+                is_faved_org = True
+        return render(request, 'teacher-detail.html', {
+                'teacher': teacher,
+                'teacher_courses': teacher_courses,
+                'top_teachers': top_teachers,
+                'is_faved_teacher': is_faved_teacher,
+                'is_faved_org': is_faved_org,
+            })

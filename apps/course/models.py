@@ -2,10 +2,12 @@ from datetime import datetime
 
 from django.db import models
 
-# Create your models here.
+from organization.models import CourseOrg, Teacher
 
 
 class Course(models.Model):
+    course_org = models.ForeignKey(CourseOrg, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name='课程所属机构')
+    teacher = models.ForeignKey(Teacher, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name='课程讲师')
     name = models.CharField(max_length=50, verbose_name='课程名')
     desc = models.CharField(max_length=300, verbose_name='课程描述')
     detail = models.TextField(verbose_name='课程详情')
@@ -15,11 +17,27 @@ class Course(models.Model):
     fav_nums = models.IntegerField(default=0, verbose_name='收藏人数')
     image = models.ImageField(upload_to='courses/%Y/%m', verbose_name='课程封面图', max_length=100)
     click_nums = models.IntegerField(default=0, verbose_name='点击数')
+    category = models.CharField(default='hdkf', max_length=6, choices=(('qdkf', '前端开发'), ('hdkf', '后端开发'), ('uisj', 'UI设计')), verbose_name='课程类型')
+    tag = models.CharField(max_length=10, null=True, blank=True, verbose_name='标签')
     add_time = models.DateTimeField(default=datetime.now, verbose_name='添加时间')
+    note = models.CharField(max_length=100, default='', verbose_name='课程须知')
+    told = models.CharField(max_length=200, default='', verbose_name='老师告诉你能学到什么')
 
     class Meta:
         verbose_name = '课程'
         verbose_name_plural = verbose_name
+
+    def get_lesson_num(self):
+        return self.lesson_set.count()
+
+    def get_resources(self):
+        return self.courseresource_set.all()
+
+    def get_student_users(self):
+        return self.usercourse_set.all()
+
+    def get_comments(self):
+        return self.coursecomments_set.all()
 
     def __str__(self):
         return self.name
@@ -33,6 +51,9 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = '章节'
         verbose_name_plural = verbose_name
+
+    def get_videos(self):
+        return self.video_set.all()
 
     def __str__(self):
         return self.name

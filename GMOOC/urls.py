@@ -14,12 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.views.generic import TemplateView
+from django.views.static import serve
 
 import xadmin
+from GMOOC.settings import MEDIA_ROOT
 
 from users.views import LoginView, RegisterView, VerifyEmailView, ForgetPwdView, ResetPwdView
+from organization.views import OrgView
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),
@@ -30,4 +33,7 @@ urlpatterns = [
     path('verify/', VerifyEmailView.as_view(), name="verify_email"),
     path('forgetpwd/', ForgetPwdView.as_view(), name="forgetpwd"),
     path('reset/', ResetPwdView.as_view(), name="resetpwd"),
+    path('org/', include('organization.urls', namespace='org')),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT}),
+    path('course/', include('course.urls', namespace='course')),
 ]

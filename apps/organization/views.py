@@ -1,12 +1,12 @@
 import json
 
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views import View
 
 from .models import CourseOrg, City, Teacher
 from .forms import UserAskForm
-from course.models import Course
 from operation.models import UserFavourite
 
 from pure_pagination import Paginator, PageNotAnInteger
@@ -17,6 +17,10 @@ class OrgView(View):
         all_orgs = CourseOrg.objects.all()
         all_city = City.objects.all()
         top_orgs = CourseOrg.objects.order_by('-click_nums')[:5]
+
+        keywords = request.GET.get('keywords')
+        if keywords:
+            all_orgs = all_orgs.filter(Q(name__contains=keywords)|Q(desc__contains=keywords))
 
         city_id = request.GET.get('city', '')
         if city_id:
@@ -158,6 +162,11 @@ class TeachersListView(View):
     def get(self, request):
         teachers = Teacher.objects.all()
         top_teachers = Teacher.objects.all().order_by('-click_nums')[:3]
+
+        keywords = request.GET.get('keywords')
+        if keywords:
+            teachers = teachers.filter(name__contains=keywords)
+
         sort = request.GET.get('sort', '')
         if sort == 'hot':
             teachers = teachers.order_by('-click_nums')

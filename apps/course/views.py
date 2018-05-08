@@ -7,6 +7,7 @@ from django.http import HttpResponse
 
 from .models import Course
 from operation.models import UserCourse, UserFavourite, CourseComments
+from organization.models import CourseOrg
 from utils.mixin_utils import LoginRequiredMixin
 
 from pure_pagination import Paginator, PageNotAnInteger
@@ -17,6 +18,10 @@ class CourseListView(View):
         all_courses = Course.objects.all().order_by('-add_time')
         top_courses = Course.objects.all().order_by('-click_nums')[:3]
         sort = request.GET.get('sort')
+
+        keywords = request.GET.get('keywords')
+        if keywords:
+            all_courses = all_courses.filter(Q(name__contains=keywords)|Q(desc__contains=keywords))
 
         if sort:
             if sort == 'hot':

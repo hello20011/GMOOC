@@ -1,5 +1,7 @@
 from django import forms
 
+from .models import UserProfile
+
 from captcha.fields import CaptchaField
 
 
@@ -23,3 +25,19 @@ class ResetPwdForm(forms.Form):
     password1 = forms.CharField(required=True)
     password2 = forms.CharField(required=True)
     password1 = password2
+
+
+class UserUploadForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['image']
+
+
+class UserResetEmailForm(forms.Form):
+    email = forms.EmailField(required=True)
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['username', 'birthday', 'gender', 'address', 'mobile']

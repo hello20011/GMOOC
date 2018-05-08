@@ -36,3 +36,18 @@ def send_register_email(email, send_type="register"):
                   connection=None, html_message=None
         '''
         return send_mail(email_subject, email_context, EMAIL_FROM, [email, ], html_message=email_html)
+    elif send_type == "reset_email":
+        email_verify_record = EmailVerifyRecord()
+        email_verify_record.code = uuid.uuid1().hex[:4]
+        email_verify_record.email = email
+        email_verify_record.send_type = send_type
+        email_verify_record.save()
+        email_subject = "慕学网账号邮箱修改"
+        email_context = ""
+        email_html = '<h3>您的验证码是：%s' % email_verify_record.code
+        '''
+        subject, message, from_email, recipient_list,
+                  fail_silently=False, auth_user=None, auth_password=None,
+                  connection=None, html_message=None
+        '''
+        return send_mail(email_subject, email_context, EMAIL_FROM, [email, ], html_message=email_html)

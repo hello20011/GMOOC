@@ -22,7 +22,6 @@ import xadmin
 from GMOOC.settings import MEDIA_ROOT
 
 from users.views import LoginView, RegisterView, VerifyEmailView, ForgetPwdView, ResetPwdView
-from organization.views import OrgView
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),
@@ -36,4 +35,5 @@ urlpatterns = [
     path('org/', include('organization.urls', namespace='org')),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT}),
     path('course/', include('course.urls', namespace='course')),
+    path('users/', include('users.urls', namespace='users')),
 ]

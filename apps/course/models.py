@@ -7,7 +7,7 @@ from organization.models import CourseOrg, Teacher
 
 class Course(models.Model):
     course_org = models.ForeignKey(CourseOrg, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name='课程所属机构')
-    teacher = models.ForeignKey(Teacher, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name='课程讲师')
+    teacher = models.ForeignKey(Teacher, default=1, on_delete=models.DO_NOTHING, verbose_name='课程讲师')
     name = models.CharField(max_length=50, verbose_name='课程名')
     desc = models.CharField(max_length=300, verbose_name='课程描述')
     detail = models.TextField(verbose_name='课程详情')

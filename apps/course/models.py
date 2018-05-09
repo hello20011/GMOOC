@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db import models
+from django.utils.safestring import mark_safe
 
 from organization.models import CourseOrg, Teacher
 
@@ -16,6 +17,7 @@ class Course(models.Model):
     students = models.IntegerField(default=0, verbose_name='学生人数')
     fav_nums = models.IntegerField(default=0, verbose_name='收藏人数')
     image = models.ImageField(upload_to='courses/%Y/%m', verbose_name='课程封面图', max_length=100)
+    is_banner = models.BooleanField(default=False, verbose_name='是否首页轮播')
     click_nums = models.IntegerField(default=0, verbose_name='点击数')
     category = models.CharField(default='hdkf', max_length=6, choices=(('qdkf', '前端开发'), ('hdkf', '后端开发'), ('uisj', 'UI设计')), verbose_name='课程类型')
     tag = models.CharField(max_length=10, null=True, blank=True, verbose_name='标签')
@@ -39,8 +41,18 @@ class Course(models.Model):
     def get_comments(self):
         return self.coursecomments_set.all()
 
+    def go_to(self):
+        return mark_safe('<a href="https://www.baidu.com">GO_TO</a>')
+
     def __str__(self):
         return self.name
+
+
+class CourseBanner(Course):
+    class Meta:
+        verbose_name = '轮播图课程'
+        verbose_name_plural = verbose_name
+        proxy = True
 
 
 class Lesson(models.Model):

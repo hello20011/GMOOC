@@ -21,6 +21,7 @@ class City(models.Model):
 class CourseOrg(models.Model):
     name = models.CharField(max_length=100, verbose_name='机构名称')
     desc = models.TextField(verbose_name='描述信息')
+    tag = models.CharField(max_length=10, default='全国知名', verbose_name='标签')
     click_nums = models.IntegerField(default=0, verbose_name='点击数')
     fav_nums = models.IntegerField(default=0, verbose_name='收藏数')
     image = models.ImageField(upload_to='org/%Y/%m', verbose_name='封面图')

@@ -1,17 +1,18 @@
 import json
 
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.views.generic.base import View
 from django.contrib.auth.hashers import make_password
+from django.shortcuts import reverse, render_to_response
 
 from organization.models import CourseOrg, Teacher
 from utils.send_email import send_register_email
 from users.forms import LoginForm, RegisterForm, ForgetPwdForm, ResetPwdForm, UserUploadForm, UserResetEmailForm, UserUpdateForm
-from users.models import UserProfile, EmailVerifyRecord
+from users.models import UserProfile, EmailVerifyRecord, Banner
 from utils.mixin_utils import LoginRequiredMixin
 from operation.models import UserCourse, UserFavourite, UserMessage
 from course.models import Course
@@ -42,13 +43,19 @@ class LoginView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return render(request, 'index.html')
+                    return HttpResponseRedirect(reverse('index'))
                 else:
                     return render(request, 'login.html', {'msg': '用户未激活'})
             else:
                 return render(request, 'login.html', {'msg': '用户名或密码错误'})
         else:
             return render(request, 'login.html', {'login_form': login_form})
+
+
+class LoginoutView(LoginRequiredMixin, View):
+    def get(self, request):
+        logout(request)
+        return HttpResponseRedirect(reverse('index'))
 
 
 class RegisterView(View):
@@ -69,7 +76,7 @@ class RegisterView(View):
             user.is_active = False
             send_status = send_register_email(user.username, 'register')
             if send_status:
-                return render(request, 'login.html')
+                return HttpResponseRedirect(reverse('login'))
             else:
                 return HttpResponse('邮件发送失败')
         else:
@@ -86,7 +93,7 @@ class VerifyEmailView(View):
                 if email == record.email:
                     user = UserProfile.objects.get(email=email)
                     user.is_active = True
-            return render(request, 'login.html')
+            return HttpResponseRedirect(reverse('login'))
         else:
             return HttpResponse('激活失败')
 
@@ -131,7 +138,7 @@ class ResetPwdView(View):
                 user = UserProfile.objects.get(email=email)
                 user.password = make_password(password1)
                 user.save()
-                return render(request, 'login.html')
+                return HttpResponseRedirect(reverse('login'))
             else:
                 return HttpResponse("重置密码链接有误")
         else:
@@ -249,6 +256,11 @@ class UserFavCourseView(LoginRequiredMixin, View):
 class UserMessageView(LoginRequiredMixin, View):
     def get(self, request):
         all_user_messages = UserMessage.objects.filter(user=request.user.pk)
+        unread_user_messages = UserMessage.objects.filter(user=request.user.pk, is_read=False)
+        if unread_user_messages:
+            for unread_user_message in unread_user_messages:
+                unread_user_message.is_read = True
+                unread_user_message.save()
 
         try:
             page = request.GET.get('page', 1)
@@ -261,3 +273,29 @@ class UserMessageView(LoginRequiredMixin, View):
         return render(request, 'usercenter-message.html', {
             'all_user_messages': all_user_messages
         })
+
+
+class IndexView(View):
+    def get(self, request):
+        banners = Banner.objects.all().order_by('index')[:5]
+        course_banners = Course.objects.filter(is_banner=True)[:2]
+        courses = Course.objects.filter(is_banner=False)[:6]
+        orgs = CourseOrg.objects.all()[:15]
+        return render(request, 'index.html', {
+            'banners': banners,
+            'course_banners': course_banners,
+            'courses': courses,
+            'orgs': orgs,
+        })
+
+
+def page_not_found(request):
+    response = render_to_response('404.html')
+    response.status_code = 404
+    return response
+
+
+def server_error(request):
+    response = render_to_response('500.html')
+    response.status_code = 500
+    return response

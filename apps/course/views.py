@@ -7,7 +7,6 @@ from django.http import HttpResponse
 
 from .models import Course
 from operation.models import UserCourse, UserFavourite, CourseComments
-from organization.models import CourseOrg
 from utils.mixin_utils import LoginRequiredMixin
 
 from pure_pagination import Paginator, PageNotAnInteger

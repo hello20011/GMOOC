@@ -8,6 +8,7 @@ from django.views import View
 from .models import CourseOrg, City, Teacher
 from .forms import UserAskForm
 from operation.models import UserFavourite
+from course.models import Course
 
 from pure_pagination import Paginator, PageNotAnInteger
 
@@ -149,6 +150,23 @@ class AddFavView(View):
                     user_fav.fav_id = fav_id
                     user_fav.fav_type = fav_type
                     user_fav.save()
+
+                    if fav_type == 1:
+                        course = Course.objects.get(pk=fav_id)
+                        course.fav_nums +=1
+                        if course.fav_nums < 0:
+                            course.fav_nums = 0
+                    elif fav_type == 2:
+                        course_org = CourseOrg.objects.get(pk=fav_id)
+                        course_org.fav_nums += 1
+                        if course_org.fav_nums < 0:
+                            course_org.fav_nums = 0
+                    elif fav_type == 3:
+                        teacher = Teacher.objects.get(pk=fav_id)
+                        teacher.fav_nums += 1
+                        if teacher.fav_nums < 0:
+                            teacher.fav_nums = 0
+
                     return HttpResponse(json.dumps({'status': 'success', 'msg': '已收藏'}), content_type="application/json")
                 else:
                     user_fav = UserFavourite.objects.get(user=user, fav_id=fav_id, fav_type=fav_type)

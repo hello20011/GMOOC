@@ -20,7 +20,7 @@ class UserProfile(AbstractUser):
 
     def get_unread_msg_num(self):
         from operation.models import UserMessage
-        return UserMessage.objects.filter(user=self.pk).count()
+        return UserMessage.objects.filter(user=self.pk, is_read=False).count()
 
     def __str__(self):
         return self.username
@@ -46,6 +46,9 @@ class Banner(models.Model):
     url = models.URLField(max_length=200, verbose_name='访问地址')
     index = models.IntegerField(default=100, verbose_name='顺序')
     add_time = models.DateTimeField(default=datetime.now, verbose_name='添加时间')
+
+    def __str__(self):
+        return self.title
 
     class Meta:
         verbose_name = '轮播图'

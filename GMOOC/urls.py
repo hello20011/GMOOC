@@ -15,18 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
-from django.views.generic import TemplateView
 from django.views.static import serve
 
 import xadmin
 from GMOOC.settings import MEDIA_ROOT
+# from GMOOC.settings import STATIC_ROOT
 
-from users.views import LoginView, RegisterView, VerifyEmailView, ForgetPwdView, ResetPwdView
+from users.views import IndexView, LoginView, RegisterView, VerifyEmailView, ForgetPwdView, ResetPwdView, LoginoutView
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),
-    path('', TemplateView.as_view(template_name='index.html'), name="index"),
+    path('', IndexView.as_view(), name="index"),
     path('login/', LoginView.as_view(), name="login"),
+    path('loginout/', LoginoutView.as_view(), name='logout'),
     path('captcha/', include('captcha.urls')),
     path('register/', RegisterView.as_view(), name="register"),
     path('verify/', VerifyEmailView.as_view(), name="verify_email"),
@@ -34,6 +35,10 @@ urlpatterns = [
     path('reset/', ResetPwdView.as_view(), name="resetpwd"),
     path('org/', include('organization.urls', namespace='org')),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT}),
+    # re_path(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_ROOT}),
     path('course/', include('course.urls', namespace='course')),
     path('users/', include('users.urls', namespace='users')),
 ]
+
+hander404 = 'users.views.page_not_found'
+hander500 = 'users.views.server_error'

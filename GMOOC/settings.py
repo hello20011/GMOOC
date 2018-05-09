@@ -28,7 +28,7 @@ SECRET_KEY = 'dbyhq$$8d4npd!emn&je6^1c8p-l^-s@yoac3&tr&1m1-45tqy'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -144,6 +144,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -151,7 +152,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 EMAIL_HOST = 'smtp.163.com'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = 'hello20011@163.com'
-EMAIL_HOST_PASSWORD = 'PANxd66824810.'
+EMAIL_HOST_PASSWORD = 'secret'
 EMAIL_USE_TLS = False
 EMAIL_FROM = 'hello20011@163.com'
 

@@ -8,11 +8,21 @@ class UserAskAdmin(object):
     search_fields = ['name', 'mobile', 'course_name']
     list_filter = ['name', 'mobile', 'course_name', 'add_time']
 
+    # 后台icon
+    model_icon = 'fa fa-question-circle'
+    # 只读字段
+    readonly_fields = ['name', 'mobile', 'course_name', 'add_time']
+
 
 class CourseCommentsAdmin(object):
     list_display = ['user', 'course', 'comments', 'add_time']
     search_fields = ['user__username', 'course__name', 'comments']
     list_filter = ['user__username', 'course__name', 'comments', 'add_time']
+
+    # 后台icon
+    model_icon = 'fa fa-comments'
+    # 只读字段
+    readonly_fields = ['add_time']
 
 
 class UserFavouriteAdmin(object):
@@ -20,17 +30,32 @@ class UserFavouriteAdmin(object):
     search_fields = ['user__username', 'fav_id', 'fav_type']
     list_filter = ['user__username', 'fav_id', 'fav_type', 'add_time']
 
+    # 后台icon
+    model_icon = 'fa fa-star'
+    # 只读字段
+    readonly_fields = ['add_time']
+
 
 class UserMessageAdmin(object):
     list_display = ['user', 'message', 'is_read', 'add_time']
     search_fields = ['user', 'message', 'is_read']
     list_filter = ['user', 'message', 'is_read', 'add_time']
 
+    # 后台icon
+    model_icon = 'fa fa-comment-o'
+    # 只读字段
+    readonly_fields = ['add_time']
+
 
 class UserCourseAdmin(object):
     list_display = ['user', 'course', 'add_time']
     search_fields = ['user__username', 'course__name']
     list_filter = ['user__username', 'course__name', 'add_time']
+
+    # 后台icon
+    model_icon = 'fa fa-book'
+    # 只读字段
+    readonly_fields = ['add_time']
 
 
 xadmin.site.register(UserAsk, UserAskAdmin)
